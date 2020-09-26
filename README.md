@@ -1,5 +1,4 @@
 # A Multithreaded TCP Server-Client Implementation
-###### With cache memory
 [![Build Status](https://travis-ci.org/joemccann/dillinger.svg?branch=master)](https://travis-ci.org/joemccann/dillinger)
 [![Python 3.6](https://img.shields.io/badge/python-3.6-blue.svg)](https://www.python.org/downloads/release/python-360/)
 
@@ -22,63 +21,64 @@
 ***
 #### <a id="overview" />Overview
 
-Esse proejto descreve a implementação de um cliente TCP, que recupera arquivos de um determinado diretório ao estabelecer uma conexão com um servidor TCP, bem como obter uma lista dos arquivos armazenados na memória cache do mesmo. A memória cache do servidor possui um limite máximo de 64 MB, bem como o buffer de transferência de pacotes um limite de 1024 bytes. Após estabelecer uma conexão com o servidor, o cliente envia uma requisição com o nome do arquivo que deseja recuperar ou método de listagem dos arquivos. O servidor por sua vez corresponde a solitação do cliente de acordo com o método invocado. Quando solicitada a lista de arquivos, é retornada a relação de arquivos armazenados na cache. Quando é solicitado um arquivo, são realizadas as seguintes etapas: 
-- Verifica a exisitência do arquivo no diretório do qual o servidor está direcionado;
-- Verifica se o arquivo está presente na memória cache;
-    - Se o arquivo não estiver na memória cache o servidor tentará alocar esse arquivo:
-        - Será verificado o espaço disponível para alocação de um novo arquivo;
-        - Arquivos serão removidos da memória para liberar espaço, quando necessário;
-        - O arquivo será serializado em pacotes, de acordo com o tamanho do buffer de transição;
-    - Se o arquivo está presente, é feito o envio do mesmo para o requerente;
-    - Ser o arquivo possuir tamanho superior ao limite máximo da cache (64MB), ele não é alocado para a memória;
-- Envia o arquivo quando disponível;
+This project describes the implementation of a TCP client, which retrieves files from a given directory when establishing a connection with a TCP server, as well as obtaining a list of files stored in the cache memory of the same. The cache memory of the server has a maximum limit of 64 MB, as well as the packet transfer buffer a limit of 1024 bytes. After establishing a connection with the server, the client sends a request with the name of the file it wants to retrieve or method of listing the files. The server in turn corresponds to the client's request according to the method invoked. When the file list is requested, the list of files stored in the cache is returned. When a file is requested, the following steps are performed:
+
+- Checks the existence of the file in the directory from which the server is directed;
+- Checks whether the file is present in the cache memory;
+     - If the file is not in the cache, the server will try to allocate that file:
+         - The available space for allocating a new file will be checked;
+         - Files will be removed from memory to free up space, when necessary;
+         - The file will be serialized in packets, according to the size of the transition buffer;
+     - If the file is present, it is sent to the applicant;
+     - If the file is larger than the maximum cache limit (64MB), it is not allocated to memory;
+- Send the file when available;
 
 ***
 #### <a id="server" />Server
 
-O servidor TCP exige um padrão em sua execução, de acordo com o seguintes parâmetros:
+The TCP server requires a standard in its execution, according to the following parameters:
 ```sh
 $ python3 tcp_server.py host port directory_to_access
 ```
-Sendo definidos pelo usuário:
-- __host:__ o endereço ip de conexão, do qual será acessado pelo cliente.
+Being defined by the user:
+- __host:__ the connection ip address, which will be accessed by the client.
     - _ex:_ localhost or 127.0.0.1
-- __port:__ a porta de conexão, da qual será acessada pelo cliente.
+- __port:__ the connection port, which will be accessed by the customer.
     - _ex:_ 3000 
-- __directory_to_access:__ diretório do qual serão acessados os arquivos.
-    - _._ or _./_ para diretório local
+- __directory_to_access:__ directory from which the files will be accessed.
+    - _._ or _./_ for local directory
     - _ex:_ docs/images/  
 
 ***
 #### <a id="client" />Client
 
-O client TCP exige um padrão em sua execução a depender da necessidade do usuário, de acordo com as seguintes variações de parâmetros:
+The TCP client requires a standard in its execution depending on the user's needs, according to the following parameter variations:
 ```sh
 $ python3 tcp_client.py host port file_name directory_to_save
 or
 $ python3 tcp_client.py host port list
 ```
-Sendo definidos pelo usuário:
-- __host:__ o endereço ip de conexão, deve ser o mesmo definido no tcp_server.
+Being defined by the user:
+- __host:__ the connection ip address, must be the same as defined in the tcp_server.
     - _ex:_ localhost or 127.0.0.1
-- __port:__ a porta de conexão, deve ser a mesma definida no tcp_server.
+- __port:__ the connection port, must be the same defined in tcp_server.
     - _ex:_ 3000 
-- __file_name:__ arquivo que se deseja recuperar do servidor.
+- __file_name:__ file you want to retrieve from the server.
     - _ex:_ movie.mp4, market_list.docx 
-- __directory_to_save:__ diretório do qual serão acessados os arquivos.
-    - _._ or _./_ para diretório local
+- __directory_to_save:__ directory from which the files will be accessed.
+    - _._ or _./_ for local directory
     - _ex:_ files/receives/documents/  
-- __list:__ deve ser mantida essa nomenclatura. Serve para requisitar a lista de arquivos presente na memória cache do servidor.
+- __list:__ this nomenclature should be maintained. It serves to request the list of files present in the cache memory of the server.
 
 ***
 #### <a id="packages" />Package Sending and Receiving
 
-O processo de recuperação de arquivos, é feito basicamente pelo envio de pacotes do servidor para o cliente. No servidor quando um arquivo é acessado ele é serializado em formato de pacotes, de acordo com o tamanho do buffer de envio. Esses pacotes a medida que vão sendo recebidos pelo cliente, são unidos para formar o arquivo no diretório escolhido pelo usuário.
+The file recovery process is basically done by sending packages from the server to the client. On the server when a file is accessed it is serialized in packet format, according to the size of the send buffer. These packages, as they are received by the customer, are joined to form the file in the directory chosen by the user.
 
-O código abaixo exibe as etapas e serialização e desserialização, a partir da leitura e escrita do arquivo.
+The code below shows the steps and serialization and deserialization, from reading and writing the file.
 
 ```python
-# servidor serializa os dados e envia os pacotes
+# server serializes the data and sends the packets
 with open(dir + res2, OPEN_FILE_SERVER) as f:
   package = f.read(BUFFER_SIZE)
   while package:
@@ -87,7 +87,7 @@ with open(dir + res2, OPEN_FILE_SERVER) as f:
       package = f.read(BUFFER_SIZE)
   f.close()
 
-# cliente recebe os pacotes que compõe o arquivo
+# client receives the packages that make up the file
 with open(receive_f, OPEN_FILE_CLIENT) as f:
   package = s.recv(BUFFER_SIZE)
   while package:
@@ -99,31 +99,40 @@ with open(receive_f, OPEN_FILE_CLIENT) as f:
 ***
 #### <a id="multithread" />Multi-Thread Implementation
 
-O servidor TCP permite a conexão de mais um cliente por vez, ou seja, diferentes clientes que estabeleçam uma conexão com o servidor podem solicitar arquivos ou a listagem dos presentes na memória cache. Uma abstração dessa topologia de conexõa pode ser observada na figura abaixo:
+O servidor TCP permite a conexão de mais um cliente por vez, ou seja, diferentes clientes que estabeleçam conexão com o servidor podem solicitar arquivos ou a lista dos presentes na memória cache. Uma abstração desta topologia de conexão pode ser vista na figura abaixo:
 
 <div style="text-align:center"><img src="/assets/server_client_tcp.png" /></div>
 
-Esse funcionamento se resume a maneira com a qual o servidor aguarda novas conexões. O canal de comunicação entre servidor e cliente, denominado socket, fica aguardando uma novação conexão e quando essa é estabelecida, o servidor aloca a mesma como uma thread e fica aguardando outras. Tornando assim, possível que vários clientes possa requisitar arquivos do servidor sem a necessidade de aguardar o fim de uma outra conexão.
+This operation comes down to the way in which the server waits for new connections. The communication channel between server and client, called socket, is waiting for a new connection and when it is established, the server allocates it as a thread and is waiting for others. This makes it possible for multiple clients to request files from the server without having to wait for another connection to end.
+
+The code below exemplifies this procedure:
+```python
+while True:
+  # establish connection with client
+  c, addr = s.accept()
+  # a new thread client
+  start_new_thread(threaded, (c, addr, dir))
+```
 
 ***
 #### <a id="cache" />Cache Implementation
 
-A memória cache é construída a partir de uma estrutura de tabela hash, o dictionary do Python, do qual possui para cada posição uma chave e um conteúdo associado a mesma. Sua construção no server TCP, se baseia da seguinte forma:
+The cache memory is built from a hash table structure, the Python dictionary, which has a key and associated content for each position. Its construction on the TCP server is based on the following way:
 
-- A chave definida pelo nome do arquivo;
-- O conteúdo da chave, composto por três informações:
-  - file_size: o tamanho do arquivo;
-  - file_packages: a serialização do arquivo por pacotes de envio, de acordo com o tamanho do buffer do socket;
-  - lock: uma flag que identifica se o arquivo está sendo consultado ou não por um cliente.
+- The key defined by the file name;
+- The content of the key, consisting of three pieces of information:
+   - file_size: the file size;
+   - file_packages: serialization of the file by sending packets, according to the size of the socket buffer;
+   - lock: a flag that identifies whether the file is being consulted by a client or not.
 
-Quando um arquivo é adicionado a memória cache, o servidor o associa da forma citada anteriormente. Vale destacar a importância do conteúdo 'lock', responsável por assegurar que um arquivo não seja removido da cache por conta da requisição de um cliente, enquanto outro está recuperando os seus dados. Quando esse arquivo é consultado, a indicação do 'lock' fica com valor True, ao finalizar a consulta retorna para o valor 'False'. o momento em que o servidor buscar liberar espaço na memória, antes de remover um arquivo é verificado o valor do 'lock', remoção somente quando lê o valor 'False'.
+When a file is added to the cache memory, the server associates it in the manner mentioned above. It is worth highlighting the importance of 'lock' content, responsible for ensuring that a file is not removed from the cache due to a client's request, while another is recovering its data. When this file is consulted, the indication of the 'lock' is set to True, when the query ends, it returns to the value 'False'. The moment when the server tries to free space in memory, before removing a file, the value of 'lock' is checked, removal only when it reads the value 'False'.
 
-Todavia, existe um bloqueio de acesso a cache quando for neessário:
-- Consultar um arquivo;
-- Remover um arquivo;
-- Adicionar um arquivo;
+However, there is a cache access block when it is necessary:
+- Consult a file;
+- Remove a file;
+- Add a file;
 
-Esse procedimento é realizado a partir da exlusão mútua promovida pela própria biblioteca de Threads do Python. O código a seguir expressa sua utilização:
+This procedure is performed based on the mutual exclusion promoted by the Python Thread library itself. The following code expresses its use:
 
 ```python
 # to ensure mutual exclusion of cache access
@@ -140,21 +149,32 @@ code ..
 lock.release()
 ```
 
-Basicamente, o código responsável por realizar as operações de alteração ou acesso a cache, estão situados entre bloqueio ou liberação.
+Basically, the code responsible for performing the operations of altering or accessing the cache, are located between blocking or releasing.
 
 <div style="text-align:center"><img src="/assets/cache.png" /></div>
 
 ***
 #### <a id="file" />File Acess
 
-O acesso aos arquivos do diretório é feito pelo servior a medida que o cliente faz uma requisição. Dessa maneira, quando um arquivo é solicitado o servidor faz o processo de serialização e como pode haver a consulta por múltiplos clientes, no momento em que um arquivo é aberto para ser serializado, ele é bloqueado e só liberado para uma outra serialização após ser finalizado. Esse processo de serialização também ocorre quando um arquivo é armazenado na cache.
+Access to the files in the directory is done by the server as the client makes a request. In this way, when a file is requested, the server performs the serialization process and as there can be a query by multiple clients, the moment a file is opened to be serialized, it is blocked and only released for another serialization after being finalized. This serialization process also occurs when a file is cached.
 
-Quando um arquivo não é alocado na memória cache, seu envio é feito apenas por meio de sua serialização toda vez que é requisitado. Então, esse processo de bloqueio é realizado pois se um cliente requisitar um arquivo que já está sendo serializado, a thread responsável por esse novo cliente aguarde a liberação do mesmo.
+When a file is not allocated in the memory cache, it is sent only through serialization whenever it is requested.
+
+So, this blocking process is performed because if a client requests a file that is already being serialized, a thread responsible for this new client waits for its release.o.
+
+The line of code below represents the blocking of the file, while a block of code is executed:
+
+```python
+# lock file
+with FileLock(path_file + '.lock'):
+  # code
+  pass
+```
 
 ***
 #### <a id="results" />Results
 
-Os testes realizados foram com base dois clientes simultâneos. A tabela abaixo exibe a sequência de solicitações realizadas por cada cliente:
+The tests performed were based on two simultaneous customers. The table below shows the sequence of requests made by each customer:
 
 | Client 1 | Client 2 |
 | ------ | ------ |
@@ -184,7 +204,7 @@ Os testes realizados foram com base dois clientes simultâneos. A tabela abaixo 
 | python3 tcp_client.py localhost 3000 file2.txt client1/ | python3 tcp_client.py localhost 3000 file2.txt client2/ |
 | python3 tcp_client.py localhost 3000 list | python3 tcp_client.py localhost 3000 list |
 
-Os arquivos requisitados e seu respectivo tamanho, são:
+The requested files and their respective size are:
 
 | File | Size |
 | ------ | ------ |
@@ -195,14 +215,16 @@ Os arquivos requisitados e seu respectivo tamanho, são:
 | File5.txt | 52,4 Mb |
 | File6.txt | 68 Mb |
 
-Cada requisição gera mensgens no servidor que são exibidas conforme as operações executadas. A figura animada abaixo exibe o resultados das requisições, onde o terminal maior (esquerda) mostra a execução do servidor e os dois terminais menores (direita) exibem as conexões dos clientes e o retorno recebido:
+Each request generates messages on the server that are displayed according to the operations performed.
+
+The animated figure below shows the results of the requests, where the larger terminal (left) shows the server execution and the two smaller terminals (right) show the client connections and the received feedback:
 
 <div style="text-align:center"><img src="/assets/results_one_server_two_clients.gif" /></div>
 
 ***
 #### <a id="dependecies" />Dependencies
 
-Se faz necessária a instalação de algumas dependências para o funcionamento desse projeto.
+It is necessary to install some dependencies for the operation of this project.
 
 Python 3.6:
 ```sh
