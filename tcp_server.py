@@ -20,8 +20,8 @@ OPEN_FILE_SERVER = 'rb'
 '''
     cache memory dictionary 'key' : 'value'
 
-    'file_name' : [size, file_packages, lock]
-                   size = tamanho do arquivo  
+    'file_name' : [file_size, file_packages, lock]
+                   file_size = tamanho do arquivo  
                    file_packages = [
                        'package 1', 
                        'package 2', 
@@ -83,7 +83,7 @@ def threaded(c, addr, dir):
                             # sending file packages
                             c.send(package)
                             package = f.read(BUFFER_SIZE)
-                        sleep(5)
+                        sleep(1)
                         f.close()
 
                 print("|LOG|: ------- [port: %s] sent file '%s' to client" % (
@@ -117,7 +117,7 @@ def threaded(c, addr, dir):
                             while package:
                                 packages.append(package)
                                 package = f.read(BUFFER_SIZE)
-                            sleep(5)
+                            sleep(1)
                             f.close()
 
                     # add file to cache
@@ -151,7 +151,7 @@ def threaded(c, addr, dir):
 
                 for package in packages:
                     c.send(package)
-                sleep(5)
+                sleep(1)
                 print("|LOG|: |CACHE| [port: %s] sent file '%s' to client" % (
                     addr[1], res2))
         # if file does not exist
