@@ -1,0 +1,20 @@
+python3 tcp_client.py localhost 3000 file5.txt client3/
+python3 tcp_client.py localhost 3000 file4.txt client3/
+python3 tcp_client.py localhost 3000 file1.txt client3/
+python3 tcp_client.py localhost 3000 file5.txt client3/
+python3 tcp_client.py localhost 3000 list
+python3 tcp_client.py localhost 3000 file4.txt client3/
+python3 tcp_client.py localhost 3000 file2.txt client3/
+python3 tcp_client.py localhost 3000 file3.txt client3/
+python3 tcp_client.py localhost 3000 file5.txt client3/
+python3 tcp_client.py localhost 3000 file6.txt client3/
+python3 tcp_client.py localhost 3000 file2.txt client3/
+python3 tcp_client.py localhost 3000 file4.txt client3/
+python3 tcp_client.py localhost 3000 file5.txt client3/
+python3 tcp_client.py localhost 3000 file4.txt client3/
+python3 tcp_client.py localhost 3000 file5.txt client3/
+python3 tcp_client.py localhost 3000 file4.txt client3/
+python3 tcp_client.py localhost 3000 file1.txt client3/
+python3 tcp_client.py localhost 3000 file2.txt client3/
+python3 tcp_client.py localhost 3000 list
+
