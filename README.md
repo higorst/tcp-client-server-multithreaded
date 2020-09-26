@@ -3,9 +3,9 @@
 
 ***
 
-> Higor Santos de Jesus
-> Bachelor of Exact and Technological Sciences - UFRB
-> Graduating in Computer Engineering - UFRB
+> Higor Santos de Jesus <br>
+> Bachelor of Exact and Technological Sciences - UFRB <br>
+> Graduating in Computer Engineering - UFRB <br>
 
 - Overview
 - Server
@@ -67,7 +67,7 @@ Sendo definidos pelo usuário:
 
 O servidor TCP permite a conexão de mais um cliente por vez, ou seja, diferentes clientes que estabeleçam uma conexão com o servidor podem solicitar arquivos ou a listagem dos presentes na memória cache. Uma abstração dessa topologia de conexõa pode ser observada na figura abaixo:
 
-![server_client_tcp](/assets/server_client_rcp.png)
+![server_client_tcp](/assets/server_client_tcp.png)
 
 Esse funcionamento se resume a maneira com a qual o servidor aguarda novas conexões. O canal de comunicação entre servidor e cliente, denominado socket, fica aguardando uma novação conexão e quando essa é estabelecida, o servidor aloca a mesma como uma thread e fica aguardando outras. Tornando assim, possível que vários clientes possa requisitar arquivos do servidor sem a necessidade de aguardar o fim de uma outra conexão.
 
