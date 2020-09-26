@@ -1,5 +1,7 @@
 # A Multithreaded TCP Server-Client Implementation
 ###### With cache memory
+[![Build Status](https://travis-ci.org/joemccann/dillinger.svg?branch=master)](https://travis-ci.org/joemccann/dillinger)
+[![Python 3.6](https://img.shields.io/badge/python-3.6-blue.svg)](https://www.python.org/downloads/release/python-360/)
 
 ***
 
@@ -15,7 +17,9 @@
 - [Cache Implementation](#cache)
 - [File Access](#file)
 - [Results](#results)
+- [Dependencies](#dependecies)
 
+***
 #### <a id="overview" />Overview
 
 Esse proejto descreve a implementação de um cliente TCP, que recupera arquivos de um determinado diretório ao estabelecer uma conexão com um servidor TCP, bem como obter uma lista dos arquivos armazenados na memória cache do mesmo. A memória cache do servidor possui um limite máximo de 64 MB, bem como o buffer de transferência de pacotes um limite de 1024 bytes. Após estabelecer uma conexão com o servidor, o cliente envia uma requisição com o nome do arquivo que deseja recuperar ou método de listagem dos arquivos. O servidor por sua vez corresponde a solitação do cliente de acordo com o método invocado. Quando solicitada a lista de arquivos, é retornada a relação de arquivos armazenados na cache. Quando é solicitado um arquivo, são realizadas as seguintes etapas: 
@@ -29,6 +33,7 @@ Esse proejto descreve a implementação de um cliente TCP, que recupera arquivos
     - Ser o arquivo possuir tamanho superior ao limite máximo da cache (64MB), ele não é alocado para a memória;
 - Envia o arquivo quando disponível;
 
+***
 #### <a id="server" />Server
 
 O servidor TCP exige um padrão em sua execução, de acordo com o seguintes parâmetros:
@@ -44,6 +49,7 @@ Sendo definidos pelo usuário:
     - _._ or _./_ para diretório local
     - _ex:_ docs/images/  
 
+***
 #### <a id="client" />Client
 
 O client TCP exige um padrão em sua execução a depender da necessidade do usuário, de acordo com as seguintes variações de parâmetros:
@@ -64,6 +70,7 @@ Sendo definidos pelo usuário:
     - _ex:_ files/receives/documents/  
 - __list:__ deve ser mantida essa nomenclatura. Serve para requisitar a lista de arquivos presente na memória cache do servidor.
 
+***
 #### <a id="packages" />Package Sending and Receiving
 
 O processo de recuperação de arquivos, é feito basicamente pelo envio de pacotes do servidor para o cliente. No servidor quando um arquivo é acessado ele é serializado em formato de pacotes, de acordo com o tamanho do buffer de envio. Esses pacotes a medida que vão sendo recebidos pelo cliente, são unidos para formar o arquivo no diretório escolhido pelo usuário.
@@ -89,6 +96,7 @@ with open(receive_f, OPEN_FILE_CLIENT) as f:
   f.close()
 ```
 
+***
 #### <a id="multithread" />Multi-Thread Implementation
 
 O servidor TCP permite a conexão de mais um cliente por vez, ou seja, diferentes clientes que estabeleçam uma conexão com o servidor podem solicitar arquivos ou a listagem dos presentes na memória cache. Uma abstração dessa topologia de conexõa pode ser observada na figura abaixo:
@@ -97,6 +105,7 @@ O servidor TCP permite a conexão de mais um cliente por vez, ou seja, diferente
 
 Esse funcionamento se resume a maneira com a qual o servidor aguarda novas conexões. O canal de comunicação entre servidor e cliente, denominado socket, fica aguardando uma novação conexão e quando essa é estabelecida, o servidor aloca a mesma como uma thread e fica aguardando outras. Tornando assim, possível que vários clientes possa requisitar arquivos do servidor sem a necessidade de aguardar o fim de uma outra conexão.
 
+***
 #### <a id="cache" />Cache Implementation
 
 A memória cache é construída a partir de uma estrutura de tabela hash, o dictionary do Python, do qual possui para cada posição uma chave e um conteúdo associado a mesma. Sua construção no server TCP, se baseia da seguinte forma:
@@ -123,7 +132,9 @@ lock = threading.Lock()
 # activate the lock
 lock.acquire()
 
-# code {}
+'''
+code ..
+'''
 
 # disable the lock
 lock.release()
@@ -133,12 +144,14 @@ Basicamente, o código responsável por realizar as operações de alteração o
 
 <div style="text-align:center"><img src="/assets/cache.png" /></div>
 
+***
 #### <a id="file" />File Acess
 
 O acesso aos arquivos do diretório é feito pelo servior a medida que o cliente faz uma requisição. Dessa maneira, quando um arquivo é solicitado o servidor faz o processo de serialização e como pode haver a consulta por múltiplos clientes, no momento em que um arquivo é aberto para ser serializado, ele é bloqueado e só liberado para uma outra serialização após ser finalizado. Esse processo de serialização também ocorre quando um arquivo é armazenado na cache.
 
 Quando um arquivo não é alocado na memória cache, seu envio é feito apenas por meio de sua serialização toda vez que é requisitado. Então, esse processo de bloqueio é realizado pois se um cliente requisitar um arquivo que já está sendo serializado, a thread responsável por esse novo cliente aguarde a liberação do mesmo.
 
+***
 #### <a id="results" />Results
 
 Os testes realizados foram com base dois clientes simultâneos. A tabela abaixo exibe a sequência de solicitações realizadas por cada cliente:
@@ -185,6 +198,22 @@ Os arquivos requisitados e seu respectivo tamanho, são:
 Cada requisição gera mensgens no servidor que são exibidas conforme as operações executadas. A figura animada abaixo exibe o resultados das requisições, onde o terminal maior (esquerda) mostra a execução do servidor e os dois terminais menores (direita) exibem as conexões dos clientes e o retorno recebido:
 
 <div style="text-align:center"><img src="/assets/results_one_server_two_clients.gif" /></div>
+
+***
+#### <a id="dependecies" />Dependencies
+
+Se faz necessária a instalação de algumas dependências para o funcionamento desse projeto.
+
+Python 3.6:
+```sh
+$ sudo apt-get update
+$ sudo apt-get install python3.6
+```
+
+py-filelock:
+```sh
+pip3 install filelock
+```
 
 ***
 [MIT License](https://choosealicense.com/licenses/mit/)
