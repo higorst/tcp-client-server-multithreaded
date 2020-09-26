@@ -169,9 +169,9 @@ def threaded(c, addr, dir):
 # to ensure mutual exclusion of cache access
 lock = threading.Lock()
 
-HOST = 'localhost'
-PORT = int(sys.argv[1])
-dir = sys.argv[2]
+HOST = sys.argv[1]
+PORT = int(sys.argv[2])
+dir = sys.argv[3]
 if dir[len(dir) - 1] != '/': dir += '/'
 dir = '' if dir == '.' else dir
 dir = '' if dir == './' else dir

@@ -8,9 +8,4 @@ client4/
 client5/
 client6/
 
-scrip_client_1
-scrip_client_2
-scrip_client_3
-scrip_client_4
-scrip_client_5
-scrip_client_6
+*.txt
