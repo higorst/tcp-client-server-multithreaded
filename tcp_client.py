@@ -44,11 +44,11 @@ if res2 == METHOD_LIST_FILES:
         data = s.recv(BUFFER_SIZE)
 
 else:
-    recived_f = dir_save + res2
+    receive_f = dir_save + res2
     package = s.recv(BUFFER_SIZE)
     res = pickle.loads(package)
     if res:
-        with open(recived_f, OPEN_FILE_CLIENT) as f:
+        with open(receive_f, OPEN_FILE_CLIENT) as f:
             print('downloading', res2)
             package = s.recv(BUFFER_SIZE)
             while package:

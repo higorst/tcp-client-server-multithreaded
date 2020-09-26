@@ -10,6 +10,7 @@
 - [Overview](#overview)
 - [Server](#server)
 - [Client](#client)
+- [Package Sending and Receiving](#packages)
 - [Multi-Thread Implementation](#multithread)
 - [Cache Implementation](#cache)
 - [File Access](#file)
@@ -63,6 +64,31 @@ Sendo definidos pelo usuário:
     - _ex:_ files/receives/documents/  
 - __list:__ deve ser mantida essa nomenclatura. Serve para requisitar a lista de arquivos presente na memória cache do servidor.
 
+#### <a id="packages" />Package Sending and Receiving
+
+O processo de recuperação de arquivos, é feito basicamente pelo envio de pacotes do servidor para o cliente. No servidor quando um arquivo é acessado ele é serializado em formato de pacotes, de acordo com o tamanho do buffer de envio. Esses pacotes a medida que vão sendo recebidos pelo cliente, são unidos para formar o arquivo no diretório escolhido pelo usuário.
+
+O código abaixo exibe as etapas e serialização e desserialização, a partir da leitura e escrita do arquivo.
+
+```python
+# servidor serializa os dados e envia os pacotes
+with open(dir + res2, OPEN_FILE_SERVER) as f:
+  package = f.read(BUFFER_SIZE)
+  while package:
+      # sending file packages
+      c.send(package)
+      package = f.read(BUFFER_SIZE)
+  f.close()
+
+# cliente recebe os pacotes que compõe o arquivo
+with open(receive_f, OPEN_FILE_CLIENT) as f:
+  package = s.recv(BUFFER_SIZE)
+  while package:
+      f.write(package)
+      package = s.recv(BUFFER_SIZE)
+  f.close()
+```
+
 #### <a id="multithread" />Multi-Thread Implementation
 
 O servidor TCP permite a conexão de mais um cliente por vez, ou seja, diferentes clientes que estabeleçam uma conexão com o servidor podem solicitar arquivos ou a listagem dos presentes na memória cache. Uma abstração dessa topologia de conexõa pode ser observada na figura abaixo:
@@ -83,6 +109,28 @@ A memória cache é construída a partir de uma estrutura de tabela hash, o dict
 
 Quando um arquivo é adicionado a memória cache, o servidor o associa da forma citada anteriormente. Vale destacar a importância do conteúdo 'lock', responsável por assegurar que um arquivo não seja removido da cache por conta da requisição de um cliente, enquanto outro está recuperando os seus dados. Quando esse arquivo é consultado, a indicação do 'lock' fica com valor True, ao finalizar a consulta retorna para o valor 'False'. o momento em que o servidor buscar liberar espaço na memória, antes de remover um arquivo é verificado o valor do 'lock', remoção somente quando lê o valor 'False'.
 
+Todavia, existe um bloqueio de acesso a cache quando for neessário:
+- Consultar um arquivo;
+- Remover um arquivo;
+- Adicionar um arquivo;
+
+Esse procedimento é realizado a partir da exlusão mútua promovida pela própria biblioteca de Threads do Python. O código a seguir expressa sua utilização:
+
+```python
+# to ensure mutual exclusion of cache access
+lock = threading.Lock()
+
+# activate the lock
+lock.acquire()
+
+# code {}
+
+# disable the lock
+lock.release()
+```
+
+Basicamente, o código responsável por realizar as operações de alteração ou acesso a cache, estão situados entre bloqueio ou liberação.
+
 <div style="text-align:center"><img src="/assets/cache.png" /></div>
 
 #### <a id="file" />File Acess
@@ -97,7 +145,6 @@ Os testes realizados foram com base dois clientes simultâneos. A tabela abaixo 
 
 | Client 1 | Client 2 |
 | ------ | ------ |
-
 | python3 tcp_client.py localhost 3000 file5.txt client1/ | python3 tcp_client.py localhost 3000 file5.txt client2/ |
 | python3 tcp_client.py localhost 3000 file4.txt client1/ | python3 tcp_client.py localhost 3000 file4.txt client2/ 
 | python3 tcp_client.py localhost 3000 list | python3 tcp_client.py localhost 3000 list |
@@ -124,13 +171,18 @@ Os testes realizados foram com base dois clientes simultâneos. A tabela abaixo 
 | python3 tcp_client.py localhost 3000 file2.txt client1/ | python3 tcp_client.py localhost 3000 file2.txt client2/ |
 | python3 tcp_client.py localhost 3000 list | python3 tcp_client.py localhost 3000 list |
 
+Os arquivos requisitados e seu respectivo tamanho, são:
 
-| Dropbox | [plugins/dropbox/README.md][PlDb] |
-| GitHub | [plugins/github/README.md][PlGh] |
-| Google Drive | [plugins/googledrive/README.md][PlGd] |
-| OneDrive | [plugins/onedrive/README.md][PlOd] |
-| Medium | [plugins/medium/README.md][PlMe] |
-| Google Analytics | [plugins/googleanalytics/README.md][PlGa] |
+| File | Size |
+| ------ | ------ |
+| File1.txt | 5,2 Mb |
+| File2.txt | 10,5 Mb |
+| File3.txt | 15,7 Mb |
+| File4.txt | 21 Mb |
+| File5.txt | 52,4 Mb |
+| File6.txt | 68 Mb |
+
+Cada requisição gera mensgens no servidor que são exibidas conforme as operações executadas. A figura animada abaixo exibe o resultados das requisições, onde o terminal maior (esquerda) mostra a execução do servidor e os dois terminais menores (direita) exibem as conexões dos clientes e o retorno recebido:
 
 <div style="text-align:center"><img src="/assets/results_one_server_two_clients.gif" /></div>
 
