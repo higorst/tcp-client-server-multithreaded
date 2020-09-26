@@ -87,9 +87,52 @@ Quando um arquivo é adicionado a memória cache, o servidor o associa da forma 
 
 #### <a id="file" />File Acess
 
+O acesso aos arquivos do diretório é feito pelo servior a medida que o cliente faz uma requisição. Dessa maneira, quando um arquivo é solicitado o servidor faz o processo de serialização e como pode haver a consulta por múltiplos clientes, no momento em que um arquivo é aberto para ser serializado, ele é bloqueado e só liberado para uma outra serialização após ser finalizado. Esse processo de serialização também ocorre quando um arquivo é armazenado na cache.
+
+Quando um arquivo não é alocado na memória cache, seu envio é feito apenas por meio de sua serialização toda vez que é requisitado. Então, esse processo de bloqueio é realizado pois se um cliente requisitar um arquivo que já está sendo serializado, a thread responsável por esse novo cliente aguarde a liberação do mesmo.
+
 #### <a id="results" />Results
 
-<div style="text-align:center"><img src="/results_one_server_two_clients.gif" /></div>
+Os testes realizados foram com base dois clientes simultâneos. A tabela abaixo exibe a sequência de solicitações realizadas por cada cliente:
+
+| Client 1 | Client 2 |
+| ------ | ------ |
+
+| python3 tcp_client.py localhost 3000 file5.txt client1/ | python3 tcp_client.py localhost 3000 file5.txt client2/ |
+| python3 tcp_client.py localhost 3000 file4.txt client1/ | python3 tcp_client.py localhost 3000 file4.txt client2/ 
+| python3 tcp_client.py localhost 3000 list | python3 tcp_client.py localhost 3000 list |
+| python3 tcp_client.py localhost 3000 file1.txt client1/ | python3 tcp_client.py localhost 3000 file1.txt client2/ |
+| python3 tcp_client.py localhost 3000 file5.txt client1/ | python3 tcp_client.py localhost 3000 file5.txt client2/ |
+| python3 tcp_client.py localhost 3000 list | python3 tcp_client.py localhost 3000 list |
+| python3 tcp_client.py localhost 3000 file4.txt client1/ | python3 tcp_client.py localhost 3000 file4.txt client2/ |
+| python3 tcp_client.py localhost 3000 file2.txt client1/ | python3 tcp_client.py localhost 3000 file2.txt client2/ |
+| python3 tcp_client.py localhost 3000 list | python3 tcp_client.py localhost 3000 list |
+| python3 tcp_client.py localhost 3000 file3.txt client1/ | python3 tcp_client.py localhost 3000 file3.txt client2/ |
+| python3 tcp_client.py localhost 3000 file5.txt client1/ | python3 tcp_client.py localhost 3000 file5.txt client2/ |
+| python3 tcp_client.py localhost 3000 list | python3 tcp_client.py localhost 3000 list |
+| python3 tcp_client.py localhost 3000 file6.txt client1/ | python3 tcp_client.py localhost 3000 file6.txt client2/ |
+| python3 tcp_client.py localhost 3000 file2.txt client1/ | python3 tcp_client.py localhost 3000 file2.txt client2/ |
+| python3 tcp_client.py localhost 3000 list | python3 tcp_client.py localhost 3000 list |
+| python3 tcp_client.py localhost 3000 file4.txt client1/ | python3 tcp_client.py localhost 3000 file4.txt client2/ |
+| python3 tcp_client.py localhost 3000 file5.txt client1/ | python3 tcp_client.py localhost 3000 file5.txt client2/ |
+| python3 tcp_client.py localhost 3000 list | python3 tcp_client.py localhost 3000 list |
+| python3 tcp_client.py localhost 3000 file4.txt client1/ | python3 tcp_client.py localhost 3000 file4.txt client2/ |
+| python3 tcp_client.py localhost 3000 file5.txt client1/ | python3 tcp_client.py localhost 3000 file5.txt client2/ |
+| python3 tcp_client.py localhost 3000 list | python3 tcp_client.py localhost 3000 list |
+| python3 tcp_client.py localhost 3000 file4.txt client1/ | python3 tcp_client.py localhost 3000 file4.txt client2/ |
+| python3 tcp_client.py localhost 3000 file1.txt client1/ | python3 tcp_client.py localhost 3000 file1.txt client2/ |
+| python3 tcp_client.py localhost 3000 file2.txt client1/ | python3 tcp_client.py localhost 3000 file2.txt client2/ |
+| python3 tcp_client.py localhost 3000 list | python3 tcp_client.py localhost 3000 list |
+
+
+| Dropbox | [plugins/dropbox/README.md][PlDb] |
+| GitHub | [plugins/github/README.md][PlGh] |
+| Google Drive | [plugins/googledrive/README.md][PlGd] |
+| OneDrive | [plugins/onedrive/README.md][PlOd] |
+| Medium | [plugins/medium/README.md][PlMe] |
+| Google Analytics | [plugins/googleanalytics/README.md][PlGa] |
+
+<div style="text-align:center"><img src="/assets/results_one_server_two_clients.gif" /></div>
 
 ***
 [MIT License](https://choosealicense.com/licenses/mit/)
