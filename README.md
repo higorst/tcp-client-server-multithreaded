@@ -125,6 +125,12 @@ The cache memory is built from a hash table structure, the Python dictionary, wh
    - file_packages: serialization of the file by sending packets, according to the size of the socket buffer;
    - lock: a flag that identifies whether the file is being consulted by a client or not.
 
+The image below represents this organization of cache memory, where several files are possible:
+
+e cada um vai possui a mesma estrutura, variando a quantidade de pacotes associados ao me
+
+<div style="text-align:center"><img src="/assets/cache.png" /></div>
+
 When a file is added to the cache memory, the server associates it in the manner mentioned above. It is worth highlighting the importance of 'lock' content, responsible for ensuring that a file is not removed from the cache due to a client's request, while another is recovering its data. When this file is consulted, the indication of the 'lock' is set to True, when the query ends, it returns to the value 'False'. The moment when the server tries to free space in memory, before removing a file, the value of 'lock' is checked, removal only when it reads the value 'False'.
 
 However, there is a cache access block when it is necessary:
@@ -150,8 +156,6 @@ lock.release()
 ```
 
 Basically, the code responsible for performing the operations of altering or accessing the cache, are located between blocking or releasing.
-
-<div style="text-align:center"><img src="/assets/cache.png" /></div>
 
 ***
 #### <a id="file" />File Acess
