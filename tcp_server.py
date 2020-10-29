@@ -65,6 +65,9 @@ def threaded(c, addr, dir):
     elif res1 == '2':
         print("|LOG|: ------- [port: %s] client is requesting file '%s'" % (
             addr[1], res2))
+
+        # activate the lock
+        lock.acquire()
         # check if file exists in the directory or cache
         if manager_files.isExist_file(dir + res2) or res2 in cache:
             # checks if file is larger than the cache
@@ -89,8 +92,6 @@ def threaded(c, addr, dir):
                 print("|LOG|: ------- [port: %s] sent file '%s' to client" % (
                     addr[1], res2))
             else:
-                # activate the lock
-                lock.acquire()
                 # check if file exists in cache
                 if res2 not in cache:
 
