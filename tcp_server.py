@@ -139,9 +139,6 @@ def threaded(c, addr, dir):
 
                 # flush file from cache
                 cache[res2][2] = False
-                
-                # disable the lock
-                lock.release()
 
                 # -------
                 # sending through the cache
@@ -162,6 +159,9 @@ def threaded(c, addr, dir):
             # warns that file does not exist
             package = pickle.dumps(False)
             c.send(package)
+                
+        # disable the lock
+        lock.release()
 
     print("|LOG|: ------- [port: %s] closed connection with client" % (addr[1]))
     c.close()
